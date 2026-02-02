@@ -1,7 +1,24 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { FormEvent } from "react";
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const handleLogin = (e: FormEvent) => {
+    e.preventDefault();
+    // In a real app, you would validate credentials here
+    toast.success("Login Successful! Redirecting...");
+    
+    setTimeout(() => {
+        router.push("/dashboard");
+    }, 1000);
+  };
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-[#ffeec2] to-[#d6c6ff] p-4 lg:p-8">
       <div className="flex w-full max-w-[1200px] flex-col items-center justify-center gap-60 lg:flex-row lg:items-center lg:justify-center">
@@ -40,7 +57,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form className="w-full space-y-5">
+            <form onSubmit={handleLogin} className="w-full space-y-5">
               <div className="space-y-1">
                 <label
                   htmlFor="email"
@@ -51,6 +68,7 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="email"
+                  required
                   placeholder="enter your e-mail"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
@@ -66,6 +84,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type="password"
+                  required
                   placeholder="•••••••"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />

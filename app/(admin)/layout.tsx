@@ -13,7 +13,7 @@ import {
   Menu,
   X
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function AdminLayout({
   children,
@@ -21,6 +21,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
@@ -109,10 +110,10 @@ export default function AdminLayout({
           />
           
            <NavItem 
-            href="#" 
+            href="/management" 
             icon={Settings} 
             label="Management" 
-            isActive={false} 
+            isActive={pathname === "/management"} 
           />
 
            <NavItem
@@ -124,7 +125,10 @@ export default function AdminLayout({
         </div>
 
         {/* Logout */}
-        <button className="flex items-center gap-3 rounded-xl bg-gray-500 px-4 py-3 text-sm font-medium text-white hover:bg-gray-600">
+        <button 
+          onClick={() => router.push("/login")}
+          className="flex items-center gap-3 rounded-xl bg-gray-500 px-4 py-3 text-sm font-medium text-white hover:bg-gray-600"
+        >
           <LogOut className="h-4 w-4" />
           Logout Account
         </button>
