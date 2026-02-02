@@ -13,12 +13,14 @@ import {
   Menu,
   X
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
@@ -85,45 +87,40 @@ export default function AdminLayout({
         <div className="flex-1 space-y-1">
           <p className="mb-2 px-4 text-xs font-bold text-gray-400">MAIN</p>
           
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-3 rounded-xl bg-[#ff1f71] px-4 py-3 text-sm font-medium text-white shadow-lg shadow-[#ff1f71]/30"
-          >
-            <Home className="h-4 w-4" />
-            Dashboard
-          </Link>
+          <NavItem 
+            href="/dashboard" 
+            icon={Home} 
+            label="Dashboard" 
+            isActive={pathname === "/dashboard"} 
+          />
 
-          <Link
-            href="#"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-          >
-            <FileText className="h-4 w-4" />
-            Terms & Condition
-          </Link>
+          <NavItem 
+            href="/terms" 
+            icon={FileText} 
+            label="Terms & Condition" 
+            isActive={pathname === "/terms"} 
+          />
 
-          <Link
-            href="#"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-          >
-            <CreditCard className="h-4 w-4" />
-            Subscription
-          </Link>
+          <NavItem 
+            href="/subscription" 
+            icon={CreditCard} 
+            label="Subscription" 
+            isActive={pathname === "/subscription"} 
+          />
           
-           <Link
-            href="#"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-          >
-            <Settings className="h-4 w-4" />
-            Management
-          </Link>
+           <NavItem 
+            href="#" 
+            icon={Settings} 
+            label="Management" 
+            isActive={false} 
+          />
 
-           <Link
-            href="#"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-          >
-            <Users className="h-4 w-4" />
-            User Info
-          </Link>
+           <NavItem
+            href="/user" 
+            icon={Users} 
+            label="User Info" 
+            isActive={pathname === "/user"} 
+          />
         </div>
 
         {/* Logout */}
@@ -140,5 +137,32 @@ export default function AdminLayout({
         </div>
       </main>
     </div>
+
   );
+}
+
+function NavItem({ 
+    href, 
+    icon: Icon, 
+    label, 
+    isActive 
+}: { 
+    href: string; 
+    icon: any; 
+    label: string; 
+    isActive: boolean; 
+}) {
+    return (
+        <Link
+            href={href}
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                isActive 
+                ? "bg-[#ff1f71] text-white shadow-lg shadow-[#ff1f71]/30" 
+                : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+            }`}
+        >
+            <Icon className="h-4 w-4" />
+            {label}
+        </Link>
+    );
 }
