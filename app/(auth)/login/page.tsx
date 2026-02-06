@@ -4,19 +4,43 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
+import { authService } from "@/services/auth";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    // In a real app, you would validate credentials here
-    toast.success("Login Successful! Redirecting...");
-    
-    setTimeout(() => {
-        router.push("/dashboard");
-    }, 1000);
+    setLoading(true);
+
+    try {
+      const response = await authService.login(email, password);
+      
+      if (response.success) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+        localStorage.setItem("userRole", response.data.role);
+
+        toast.success(response.message || "Login Successful! Redirecting...");
+        
+        // Small delay to allow toast to be seen
+        setTimeout(() => {
+            router.push("/dashboard");
+        }, 1000);
+      } else {
+         toast.error(response.message || "Login failed");
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+       const errorMessage = error.response?.data?.message || error.message || "Something went wrong";
+       toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -69,6 +93,8 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="enter your e-mail"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
@@ -85,6 +111,8 @@ export default function LoginPage() {
                   id="password"
                   type="password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="•••••••"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
@@ -108,9 +136,10 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="mt-4 w-full rounded-xl bg-blue-500 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-600 hover:shadow-blue-600/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                disabled={loading}
+                className="mt-4 w-full rounded-xl bg-blue-500 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-600 hover:shadow-blue-600/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Log In
+                {loading ? "Logging in..." : "Log In"}
               </button>
             </form>
           </div>

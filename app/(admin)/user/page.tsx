@@ -1,35 +1,60 @@
 "use client";
 
-import { Search, User, Eye, TrendingUp, Edit3, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { Search, User as UserIcon, Eye, TrendingUp, Edit3, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { userService, User } from "@/services/user";
+import { toast } from "sonner";
 
-// Mock Data
-const ALL_USERS = Array.from({ length: 7 }).map((_, i) => ({
-  id: `#J-10294`, // distinct IDs would be better but following design
-  name: "John Carter",
-  email: "example@gmail.com",
-  phone: "0000 0000 0000"
-}));
+
 
 // Adding some variation for search testing
-const USERS_DATA = [
-    { id: "#J-10294", name: "John Carter", email: "john@gmail.com", phone: "0000 0000 0000" },
-    { id: "#J-10295", name: "Jane Doe", email: "jane@gmail.com", phone: "1111 2222 3333" },
-    { id: "#J-10296", name: "Robert Smith", email: "robert@gmail.com", phone: "4444 5555 6666" },
-    { id: "#J-10297", name: "Alice Johnson", email: "alice@gmail.com", phone: "7777 8888 9999" },
-    { id: "#J-10298", name: "Michael Brown", email: "michael@gmail.com", phone: "1234 5678 9012" },
-    { id: "#J-10299", name: "Emily Davis", email: "emily@gmail.com", phone: "9876 5432 1098" },
-    { id: "#J-10300", name: "David Wilson", email: "david@gmail.com", phone: "1122 3344 5566" },
-];
+
 
 
 export default function UserPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 10;
+
+  useEffect(() => {
+    fetchUsers(currentPage);
+  }, [currentPage]);
+
+  const fetchUsers = async (page: number) => {
+    setLoading(true);
+    try {
+      const response = await userService.getAllUsers(page, LIMIT);
+      if (response.success) {
+        setUsers(response.data.data);
+        setTotalUsers(response.data.meta.total);
+        setTotalPages(response.data.meta.totalPages);
+      } else {
+        toast.error(response.message || "Failed to fetch users");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("An error occurred while fetching users");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
   
-  const filteredUsers = USERS_DATA.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.id.toLowerCase().includes(searchQuery.toLowerCase())
+  // Basic client-side filtering for search if API doesn't support it yet
+  // Ideally, search should be server-side
+  const filteredUsers = users.filter(user => 
+    (user.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (user.email?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (user._id?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -51,9 +76,9 @@ export default function UserPage() {
         <div className="rounded-2xl bg-white p-6 shadow-sm flex items-center justify-between">
            <div>
               <p className="text-sm font-medium text-gray-500">Total User</p>
-              <h3 className="mt-1 text-2xl font-bold text-gray-900">24</h3>
+              <h3 className="mt-1 text-2xl font-bold text-gray-900">{totalUsers}</h3>
            </div>
-           <User className="h-6 w-6 text-gray-400" />
+           <UserIcon className="h-6 w-6 text-gray-400" />
         </div>
 
         {/* Card 2 */}
@@ -113,8 +138,8 @@ export default function UserPage() {
             <tbody className="divide-y divide-gray-100 bg-[#b3a1f8]/20">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user, i) => (
-                  <tr key={i} className="transition-colors hover:bg-[#b3a1f8]/30">
-                    <td className="px-6 py-4 text-sm text-gray-600">{user.id}</td>
+                  <tr key={user._id || i} className="transition-colors hover:bg-[#b3a1f8]/30">
+                    <td className="px-6 py-4 text-sm text-gray-600">#{user._id?.substring(0, 8)}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{user.name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.phone}</td>
@@ -134,29 +159,36 @@ export default function UserPage() {
 
         {/* Pagination */}
         <div className="flex items-center justify-end gap-2 pt-4">
-             <button className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100">
+             <button 
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
                 <ChevronLeft className="h-5 w-5" />
              </button>
-             <button className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ff1f71] text-sm font-bold text-white shadow-lg shadow-[#ff1f71]/30">
-                1
-             </button>
-             <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white hover:bg-white/20">
-                2
-             </button>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white hover:bg-white/20">
-                3
-             </button>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white hover:bg-white/20">
-                4
-             </button>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white hover:bg-white/20">
-                5
-             </button>
-             <span className="text-white">...</span>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white hover:bg-white/20">
-                33
-             </button>
-             <button className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100">
+             
+             {Array.from({ length: totalPages }, (_, i) => i + 1)
+                // Logical pagination needed if many pages, for now showing all or simple slice
+                .slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2)) 
+                .map((page) => (
+                 <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+                        currentPage === page 
+                        ? "bg-[#ff1f71] text-white shadow-lg shadow-[#ff1f71]/30" 
+                        : "text-gray-600 hover:bg-gray-100" // Adjusted for visibility on white bg
+                    }`}
+                 >
+                    {page}
+                 </button>
+             ))}
+
+             <button 
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages || loading}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
                 <ChevronRight className="h-5 w-5" />
              </button>
         </div>

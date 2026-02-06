@@ -13,6 +13,9 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { useEffect, useState } from "react";
+import { userService } from "@/services/user";
+import { toast } from "sonner";
 
 const data = [
   { name: "Jan", uv: 200 },
@@ -41,6 +44,25 @@ const PIE_COLORS = ["#ff715b", "#5ce1e6", "#ff4f4f", "#8af36d"];
 
 
 export default function DashboardPage() {
+  const [totalUsers, setTotalUsers] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch users to get total count
+        // Using limit 1 since we only need the meta.total
+        const userRes = await userService.getAllUsers(1, 1);
+        if (userRes.success) {
+            setTotalUsers(userRes.data.meta.total);
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -58,7 +80,7 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-pink-300">Total User</p>
-              <h3 className="mt-2 text-3xl font-bold text-[#ff1f71]">40,689</h3>
+              <h3 className="mt-2 text-3xl font-bold text-[#ff1f71]">{totalUsers !== null ? totalUsers.toLocaleString() : "..."}</h3>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 shadow-md">
                <Users className="h-5 w-5 text-white" />
