@@ -140,9 +140,9 @@ export default function UserPage() {
                 filteredUsers.map((user, i) => (
                   <tr key={user._id || i} className="transition-colors hover:bg-[#b3a1f8]/30">
                     <td className="px-6 py-4 text-sm text-gray-600">#{user._id?.substring(0, 8)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{user.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{user.phone}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{user.name?user.name:"N/A"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{user.email?user.email:"N/A"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{user.phone?user.phone:"N/A"}</td>
                   </tr>
                 ))
               ) : (
@@ -158,7 +158,7 @@ export default function UserPage() {
       </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-end gap-2 pt-4">
+        <div className="flex items-center justify-end gap-2 pt-4 pb-4">
              <button 
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1 || loading}
