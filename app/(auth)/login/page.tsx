@@ -19,25 +19,26 @@ export default function LoginPage() {
 
     try {
       const response = await authService.login(email, password);
-      
+
+
       if (response.success) {
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
         localStorage.setItem("userRole", response.data.role);
 
         toast.success(response.message || "Login Successful! Redirecting...");
-        
+
         // Small delay to allow toast to be seen
         setTimeout(() => {
-            router.push("/dashboard");
+          router.push("/dashboard");
         }, 1000);
       } else {
-         toast.error(response.message || "Login failed");
+        toast.error(response.message || "Login failed");
       }
     } catch (error: any) {
       console.error("Login error:", error);
-       const errorMessage = error.response?.data?.message || error.message || "Something went wrong";
-       toast.error(errorMessage);
+      const errorMessage = error.response?.data?.message || error.message || "Something went wrong";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -62,14 +63,14 @@ export default function LoginPage() {
         <div className="flex w-full max-w-[600px] flex-col gap-6">
           {/* Logo (Top Right of the right section) */}
           <div className="flex justify-center">
-             <div className="relative h-12 w-40">
-                <Image
+            <div className="relative h-12 w-40">
+              <Image
                 src="/logo.svg"
                 alt="ClipFrame Logo"
                 fill
                 className="object-contain"
-                />
-             </div>
+              />
+            </div>
           </div>
 
           {/* Form Card (White Background) */}
