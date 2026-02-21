@@ -34,3 +34,21 @@ export interface Template {
         email: string;
     };
 }
+export interface SubscriptionPlan {
+    _id?: string;
+    title: string;
+    description: string;
+    price: number;
+    duration: string;
+    paymentType: string;
+    limits: {
+        reelsPerWeek: number;
+        postsPerWeek: number;
+        storiesPerWeek: number;
+        carouselPerWeek: number;
+        businessesManageable: number;
+    };
+    features?: string[];
+    createdAt?: string;
+    updatedAt?: string;
+}
