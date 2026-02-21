@@ -4,14 +4,27 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { authService } from "@/services/auth";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedEmail = localStorage.getItem("rememberEmail");
+      const savedPassword = localStorage.getItem("rememberPassword");
+      if (savedEmail && savedPassword) {
+        setEmail(savedEmail);
+        setPassword(savedPassword);
+        setRememberMe(true);
+      }
+    }
+  }, []);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,6 +38,19 @@ export default function LoginPage() {
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
         localStorage.setItem("userRole", response.data.role);
+
+        // Parsing the last name from message (e.g., "Welcome back Mohosin" -> "Mohosin")
+        const messageParts = response.message.split(" ");
+        const dynamicName = messageParts[messageParts.length - 1];
+        localStorage.setItem("userName", dynamicName || response.data.name || "Admin");
+
+        if (rememberMe) {
+          localStorage.setItem("rememberEmail", email);
+          localStorage.setItem("rememberPassword", password);
+        } else {
+          localStorage.removeItem("rememberEmail");
+          localStorage.removeItem("rememberPassword");
+        }
 
         toast.success(response.message || "Login Successful! Redirecting...");
 
@@ -123,6 +149,8 @@ export default function LoginPage() {
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-500">Remember me</span>
