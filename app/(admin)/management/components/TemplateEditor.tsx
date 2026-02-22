@@ -14,9 +14,10 @@ type TemplateEditorProps = {
     template: Partial<Template>;
     onBack: () => void;
     onSave: () => void;
+    onPreview: (template: Partial<Template>) => void;
 };
 
-export default function TemplateEditor({ template: initialTemplate, onBack, onSave }: TemplateEditorProps) {
+export default function TemplateEditor({ template: initialTemplate, onBack, onSave, onPreview }: TemplateEditorProps) {
     const [currentTemplate, setCurrentTemplate] = useState<Partial<Template>>({
         ...initialTemplate,
         steps: initialTemplate.steps || []
@@ -143,7 +144,7 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
                 // I'll try generic POST for create. For update, I might need to check if there is an update endpoint.
                 // If `currentTemplate` has `_id`, I should probably use PUT `contentTemplate/${currentTemplate._id}`?
                 // Or maybe POST handles both? I'll assume PUT for update if ID exists.
-                await api.put(`/contentTemplate/${currentTemplate._id}`, formData, {
+                await api.patch(`/contentTemplate/${currentTemplate._id}`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
             } else {
@@ -179,7 +180,10 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
                     Back to Dashboard
                 </button>
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 rounded-xl bg-blue-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-600">
+                    <button
+                        onClick={() => onPreview(currentTemplate)}
+                        className="flex items-center gap-2 rounded-xl bg-blue-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-600 transition-all active:scale-95"
+                    >
                         <Eye className="h-4 w-4" />
                         Preview
                     </button>

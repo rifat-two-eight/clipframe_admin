@@ -372,7 +372,6 @@ export default function SubscriptionPage() {
                                         onChange={handleInputChange}
                                         className="w-full rounded-xl border border-gray-400 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500 appearance-none"
                                     >
-                                        <option value="One-time">One-time</option>
                                         <option value="Monthly">Monthly</option>
                                         <option value="Yearly">Yearly</option>
                                     </select>

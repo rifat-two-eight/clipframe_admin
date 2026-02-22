@@ -9,17 +9,22 @@ import {
     Edit3,
     MoreVertical,
     Plus,
-    Loader2
+    Loader2,
+    Heart,
+    Trash2
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import TemplateEditor from "./components/TemplateEditor";
+import TemplateDetails from "./components/TemplateDetails";
 import api from "@/lib/axios";
+import Swal from "sweetalert2";
 import { Template } from "./types";
 
 const CATEGORIES = ["All Categories", "Lifestyle", "Restaurant", "Tutorial", "Product"];
 
 export default function ManagementPage() {
-    const [view, setView] = useState<"dashboard" | "editor">("dashboard");
+    const [view, setView] = useState<"dashboard" | "editor" | "details">("dashboard");
+    const [previousView, setPreviousView] = useState<"dashboard" | "editor">("dashboard");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All Categories");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -29,6 +34,8 @@ export default function ManagementPage() {
     const [templates, setTemplates] = useState<Template[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
+    const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const fetchTemplates = async () => {
         setIsLoading(true);
@@ -91,12 +98,86 @@ export default function ManagementPage() {
         fetchTemplates();
     };
 
+    const handleDeleteTemplate = async (id: string) => {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ff1f71",
+            cancelButtonColor: "#94a3b8",
+            confirmButtonText: "Yes, delete it!"
+        });
+
+        if (!result.isConfirmed) return;
+
+        setIsDeleting(id);
+        try {
+            await api.delete(`/contentTemplate/${id}`);
+            setTemplates(prev => prev.filter(t => t._id !== id));
+            setActiveDropdown(null);
+
+            Swal.fire({
+                title: "Deleted!",
+                text: "Template has been deleted.",
+                icon: "success",
+                confirmButtonColor: "#ff1f71"
+            });
+        } catch (err: any) {
+            Swal.fire({
+                title: "Error!",
+                text: err?.response?.data?.message || err?.message || "Failed to delete template",
+                icon: "error",
+                confirmButtonColor: "#ff1f71"
+            });
+        } finally {
+            setIsDeleting(null);
+        }
+    };
+
+    const handlePreviewTemplate = (template: Partial<Template>) => {
+        setPreviousView(view === "details" ? previousView : (view as "dashboard" | "editor"));
+        setCurrentTemplate(template);
+        setView("details");
+    };
+
+    const handleToggleLove = async (template: Template) => {
+        try {
+            const res = await api.patch(`/contentTemplate/${template._id}/love`);
+            // Update local state
+            setTemplates(prev => prev.map(t => {
+                if (t._id === template._id) {
+                    return {
+                        ...t,
+                        stats: {
+                            ...t.stats!,
+                            loveCount: res.data?.data?.stats?.loveCount ?? (t.stats?.loveCount || 0) + 1
+                        }
+                    };
+                }
+                return t;
+            }));
+        } catch (err: any) {
+            console.error("Failed to toggle love:", err);
+        }
+    };
+
     if (view === "editor") {
         return (
             <TemplateEditor
                 template={currentTemplate}
                 onBack={() => setView("dashboard")}
                 onSave={handleSaveTemplate}
+                onPreview={handlePreviewTemplate}
+            />
+        );
+    }
+
+    if (view === "details") {
+        return (
+            <TemplateDetails
+                template={currentTemplate}
+                onBack={() => setView(previousView)}
             />
         );
     }
@@ -264,10 +345,45 @@ export default function ManagementPage() {
                             {/* Content */}
                             <div className="space-y-3">
                                 <div className="flex items-start justify-between">
-                                    <h3 className="text-base font-bold text-gray-900">{template.title}</h3>
-                                    <button className="text-gray-400 hover:text-gray-600">
-                                        <MoreVertical className="h-5 w-5" />
-                                    </button>
+                                    <h3 className="text-base font-bold text-gray-900 line-clamp-1">{template.title}</h3>
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setActiveDropdown(activeDropdown === template._id ? null : template._id!)}
+                                            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+                                        >
+                                            <MoreVertical className="h-5 w-5" />
+                                        </button>
+
+                                        {activeDropdown === template._id && (
+                                            <>
+                                                <div
+                                                    className="fixed inset-0 z-10"
+                                                    onClick={() => setActiveDropdown(null)}
+                                                ></div>
+                                                <div className="absolute right-0 top-full mt-1 w-36 rounded-xl border border-gray-100 bg-white p-1 shadow-xl z-20">
+                                                    <button
+                                                        onClick={() => handleEditTemplate(template)}
+                                                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
+                                                    >
+                                                        <Edit3 className="h-4 w-4" />
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteTemplate(template._id!)}
+                                                        disabled={isDeleting === template._id}
+                                                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                                                    >
+                                                        {isDeleting === template._id ? (
+                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                        ) : (
+                                                            <Trash2 className="h-4 w-4" />
+                                                        )}
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <p className="text-sm text-gray-500 line-clamp-2">
@@ -292,19 +408,30 @@ export default function ManagementPage() {
                                         <span className="flex items-center gap-1">
                                             <PlayCircle className="h-3 w-3" /> {template.stats?.reuseCount ?? 0}
                                         </span>
-                                        <span className="flex items-center gap-1">
-                                            <Eye className="h-3 w-3" /> {template.stats?.loveCount ?? 0}
-                                        </span>
+                                        <button
+                                            onClick={() => handleToggleLove(template)}
+                                            className="flex items-center gap-1 hover:text-pink-500 transition-colors"
+                                        >
+                                            <Heart className="h-3 w-3" /> {template.stats?.loveCount ?? 0}
+                                        </button>
                                     </div>
                                     <span>{new Date(template.createdAt || Date.now()).toLocaleDateString()}</span>
                                 </div>
 
-                                <button
-                                    onClick={() => handleEditTemplate(template)}
-                                    className="w-full rounded-xl bg-[#ff1f71] py-2.5 text-sm font-bold text-white transition-opacity hover:bg-pink-600"
-                                >
-                                    Edit Template
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleEditTemplate(template)}
+                                        className="flex-1 rounded-xl bg-pink-50 py-2.5 text-sm font-bold text-[#ff1f71] transition-opacity hover:bg-pink-100"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handlePreviewTemplate(template)}
+                                        className="flex-1 rounded-xl bg-[#ff1f71] py-2.5 text-sm font-bold text-white transition-opacity hover:bg-pink-600"
+                                    >
+                                        Preview
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
