@@ -168,7 +168,7 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-10">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <button
