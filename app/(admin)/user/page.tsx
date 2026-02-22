@@ -1,9 +1,17 @@
 "use client";
 
-import { Search, User as UserIcon, Eye, TrendingUp, Edit3, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, User as UserIcon, Crown, UserCheck, UserPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { userService, User } from "@/services/user";
+import api from "@/lib/axios";
 import { toast } from "sonner";
+
+interface UserStats {
+  totalUsers: number;
+  premiumUsers: number;
+  activeUsers: number;
+  newUsers: number;
+}
 
 
 
@@ -15,6 +23,8 @@ export default function UserPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [totalUsers, setTotalUsers] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -22,7 +32,22 @@ export default function UserPage() {
 
   useEffect(() => {
     fetchUsers(currentPage);
+    fetchUserStats();
   }, [currentPage]);
+
+  const fetchUserStats = async () => {
+    setStatsLoading(true);
+    try {
+      const res = await api.get("/stats/user-stats");
+      if (res.data.success) {
+        setStats(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -48,10 +73,10 @@ export default function UserPage() {
       setCurrentPage(page);
     }
   };
-  
+
   // Basic client-side filtering for search if API doesn't support it yet
   // Ideally, search should be server-side
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter(user =>
     (user.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
     (user.email?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
     (user._id?.toLowerCase() || "").includes(searchQuery.toLowerCase())
@@ -64,7 +89,7 @@ export default function UserPage() {
         <div>
           <h1 className="text-3xl font-bold text-[#ff1f71]">User Information</h1>
           <p className="mt-1 text-sm text-[#ff7171]">
-             Welcome back, Here's what's happening with your account.
+            Welcome back, Here's what's happening with your account.
           </p>
         </div>
         {/* "Create Template" button removed as requested */}
@@ -72,54 +97,54 @@ export default function UserPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Card 1 */}
+        {/* Card 1: Total Users */}
         <div className="rounded-2xl bg-white p-6 shadow-sm flex items-center justify-between">
-           <div>
-              <p className="text-sm font-medium text-gray-500">Total User</p>
-              <h3 className="mt-1 text-2xl font-bold text-gray-900">{totalUsers}</h3>
-           </div>
-           <UserIcon className="h-6 w-6 text-gray-400" />
+          <div>
+            <p className="text-sm font-medium text-gray-500">Total User</p>
+            <h3 className="mt-1 text-2xl font-bold text-gray-900">{statsLoading ? "..." : (stats?.totalUsers || 0)}</h3>
+          </div>
+          <UserIcon className="h-6 w-6 text-[#ff1f71]" />
         </div>
 
-        {/* Card 2 */}
+        {/* Card 2: Premium Users */}
         <div className="rounded-2xl bg-white p-6 shadow-sm flex items-center justify-between">
-           <div>
-              <p className="text-sm font-medium text-gray-500">View</p>
-              <h3 className="mt-1 text-2xl font-bold text-gray-900">18</h3>
-           </div>
-           <Eye className="h-6 w-6 text-gray-900" />
+          <div>
+            <p className="text-sm font-medium text-gray-500">Premium User</p>
+            <h3 className="mt-1 text-2xl font-bold text-gray-900">{statsLoading ? "..." : (stats?.premiumUsers || 0)}</h3>
+          </div>
+          <Crown className="h-6 w-6 text-yellow-500" />
         </div>
 
-        {/* Card 3 */}
-         <div className="rounded-2xl bg-white p-6 shadow-sm flex items-center justify-between">
-           <div>
-              <p className="text-sm font-medium text-gray-500">Revenue</p>
-              <h3 className="mt-1 text-2xl font-bold text-gray-900">12.4K</h3>
-           </div>
-           <TrendingUp className="h-6 w-6 text-gray-900" />
+        {/* Card 3: Active Users */}
+        <div className="rounded-2xl bg-white p-6 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-500">Active User</p>
+            <h3 className="mt-1 text-2xl font-bold text-gray-900">{statsLoading ? "..." : (stats?.activeUsers || 0)}</h3>
+          </div>
+          <UserCheck className="h-6 w-6 text-green-500" />
         </div>
 
-        {/* Card 4 */}
-         <div className="rounded-2xl bg-white p-6 shadow-sm flex items-center justify-between">
-           <div>
-              <p className="text-sm font-medium text-gray-500">Draft</p>
-              <h3 className="mt-1 text-2xl font-bold text-gray-900">6</h3>
-           </div>
-           <Edit3 className="h-6 w-6 text-gray-900" />
+        {/* Card 4: New Users */}
+        <div className="rounded-2xl bg-white p-6 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-500">New User</p>
+            <h3 className="mt-1 text-2xl font-bold text-gray-900">{statsLoading ? "..." : (stats?.newUsers || 0)}</h3>
+          </div>
+          <UserPlus className="h-6 w-6 text-blue-500" />
         </div>
       </div>
 
       {/* Search Bar */}
       <div className="flex justify-end">
         <div className="relative">
-             <input 
-                type="text" 
-                placeholder="Search" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full bg-[#ff1f71] py-2 pl-6 pr-10 text-sm text-white placeholder:text-white/80 focus:outline-none focus:ring-2 focus:ring-pink-300"
-             />
-             <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-full bg-[#ff1f71] py-2 pl-6 pr-10 text-sm text-white placeholder:text-white/80 focus:outline-none focus:ring-2 focus:ring-pink-300"
+          />
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white" />
         </div>
       </div>
 
@@ -140,58 +165,57 @@ export default function UserPage() {
                 filteredUsers.map((user, i) => (
                   <tr key={user._id || i} className="transition-colors hover:bg-[#b3a1f8]/30">
                     <td className="px-6 py-4 text-sm text-gray-600">#{user._id?.substring(0, 8)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{user.name?user.name:"N/A"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{user.email?user.email:"N/A"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{user.phone?user.phone:"N/A"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{user.name ? user.name : "N/A"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{user.email ? user.email : "N/A"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{user.phone ? user.phone : "N/A"}</td>
                   </tr>
                 ))
               ) : (
-                 <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
-                        No users found matching "{searchQuery}"
-                    </td>
-                 </tr>
+                <tr>
+                  <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                    No users found matching "{searchQuery}"
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-end gap-2 pt-4 pb-4">
-             <button 
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1 || loading}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed"
-             >
-                <ChevronLeft className="h-5 w-5" />
-             </button>
-             
-             {Array.from({ length: totalPages }, (_, i) => i + 1)
-                // Logical pagination needed if many pages, for now showing all or simple slice
-                .slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2)) 
-                .map((page) => (
-                 <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                        currentPage === page 
-                        ? "bg-[#ff1f71] text-white shadow-lg shadow-[#ff1f71]/30" 
-                        : "text-gray-600 hover:bg-gray-100" // Adjusted for visibility on white bg
-                    }`}
-                 >
-                    {page}
-                 </button>
-             ))}
+      {/* Pagination */}
+      <div className="flex items-center justify-end gap-2 pt-4 pb-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1 || loading}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
 
-             <button 
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages || loading}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed"
-             >
-                <ChevronRight className="h-5 w-5" />
-             </button>
-        </div>
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          // Logical pagination needed if many pages, for now showing all or simple slice
+          .slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))
+          .map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${currentPage === page
+                  ? "bg-[#ff1f71] text-white shadow-lg shadow-[#ff1f71]/30"
+                  : "text-gray-600 hover:bg-gray-100" // Adjusted for visibility on white bg
+                }`}
+            >
+              {page}
+            </button>
+          ))}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || loading}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-pink-500 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
     </div>
   );
 }
