@@ -8,7 +8,7 @@ import { Template, Step } from "../types";
 
 // Constants
 const CATEGORIES = ["Lifestyle", "Restaurant", "Tutorial", "Product"];
-const TYPES = ["reel", "story", "post", "video"];
+const TYPES = ["reel", "story", "post"];
 
 type TemplateEditorProps = {
     template: Partial<Template>;
