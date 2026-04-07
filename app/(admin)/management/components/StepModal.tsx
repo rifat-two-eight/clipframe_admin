@@ -9,9 +9,10 @@ type StepModalProps = {
     onClose: () => void;
     onAddStep: (step: Step) => void;
     initialData?: Step | null;
+    templateType: string;
 };
 
-export default function StepModal({ isOpen, onClose, onAddStep, initialData }: StepModalProps) {
+export default function StepModal({ isOpen, onClose, onAddStep, initialData, templateType }: StepModalProps) {
     const [stepForm, setStepForm] = useState<Partial<Step>>({});
     const [clipFile, setClipFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,15 +32,18 @@ export default function StepModal({ isOpen, onClose, onAddStep, initialData }: S
                 });
                 setClipFile(initialData.videoFile || null);
             } else {
-                setStepForm({});
+                setStepForm({
+                    mediaType: templateType === "story" ? "image" : "video"
+                });
                 setClipFile(null);
             }
         }
-    }, [isOpen, initialData]);
+    }, [isOpen, initialData, templateType]);
 
     const handleAdd = () => {
         // Validate required fields
-        if (!stepForm.title || !stepForm.shotType || !stepForm.duration || !stepForm.mainTip) {
+        const isStory = templateType === "story";
+        if (!stepForm.title || !stepForm.shotType || (!isStory && !stepForm.duration) || !stepForm.mainTip) {
             // In a real app, show validation error
             alert("Please fill in all required fields.");
             return;
@@ -49,9 +53,9 @@ export default function StepModal({ isOpen, onClose, onAddStep, initialData }: S
             ...stepForm,
             title: stepForm.title!,
             shotType: stepForm.shotType!,
-            duration: stepForm.duration!,
             mainTip: stepForm.mainTip!,
-            mediaType: (stepForm.mediaType as "video" | "image") || "video",
+            duration: isStory ? "N/A" : stepForm.duration!,
+            mediaType: isStory ? "image" : (stepForm.mediaType as "video" | "image") || "video",
             videoFile: clipFile,
         };
         onAddStep(newStep);
@@ -87,7 +91,7 @@ export default function StepModal({ isOpen, onClose, onAddStep, initialData }: S
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept="video/*,image/*"
+                            accept={templateType === "story" ? "image/*" : (templateType === "reel" || templateType === "post" ? "video/*" : "video/*,image/*")}
                             className="hidden"
                             onChange={(e) => {
                                 const file = e.target.files?.[0] ?? null;
@@ -108,9 +112,11 @@ export default function StepModal({ isOpen, onClose, onAddStep, initialData }: S
                                 <>
                                     <Upload className="mb-2 h-8 w-8 text-gray-700" />
                                     <p className="text-sm font-bold text-gray-700">
-                                        {stepForm.url ? "Replace existing media" : "Click to upload video / image"}
+                                        {stepForm.url ? "Replace existing media" : `Click to upload ${templateType === "story" ? "image" : "video"}`}
                                     </p>
-                                    <p className="text-xs text-gray-500">MP4, MOV, AVI, JPG, PNG (Max 500MB)</p>
+                                    <p className="text-xs text-gray-500">
+                                        {templateType === "story" ? "JPG, PNG, WEBP (Max 50MB)" : "MP4, MOV, AVI (Max 500MB)"}
+                                    </p>
                                 </>
                             )}
                         </div>
@@ -141,24 +147,27 @@ export default function StepModal({ isOpen, onClose, onAddStep, initialData }: S
                                 <option value="close-up">Close-up</option>
                             </select>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Duration *</label>
-                            <input
-                                type="text"
-                                className="w-full rounded-xl border border-gray-400 bg-white px-4 py-3 text-sm text-gray-900 font-medium placeholder:text-gray-400 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                placeholder="e.g., 4-6 seconds"
-                                onChange={(e) => setStepForm({ ...stepForm, duration: e.target.value })}
-                                value={stepForm.duration || ""}
-                            />
-                        </div>
+                        {templateType !== "story" && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700">Duration *</label>
+                                <input
+                                    type="text"
+                                    className="w-full rounded-xl border border-gray-400 bg-white px-4 py-3 text-sm text-gray-900 font-medium placeholder:text-gray-400 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                    placeholder="e.g., 4-6 seconds"
+                                    onChange={(e) => setStepForm({ ...stepForm, duration: e.target.value })}
+                                    value={stepForm.duration || ""}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-700">Media Type *</label>
                         <select
-                            className="w-full rounded-xl border border-gray-400 bg-white px-4 py-3 text-sm text-gray-900 font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            className="w-full rounded-xl border border-gray-400 bg-white px-4 py-3 text-sm text-gray-900 font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
                             onChange={(e) => setStepForm({ ...stepForm, mediaType: e.target.value as "video" | "image" })}
-                            value={stepForm.mediaType || "video"}
+                            value={templateType === "story" ? "image" : (templateType === "reel" || templateType === "post" ? "video" : (stepForm.mediaType || "video"))}
+                            disabled={templateType === "story" || templateType === "reel" || templateType === "post"}
                         >
                             <option value="video">Video</option>
                             <option value="image">Image</option>

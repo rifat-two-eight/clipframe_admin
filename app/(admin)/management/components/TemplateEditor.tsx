@@ -410,7 +410,9 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
                                     <div>
                                         <p className="font-bold text-gray-900">{step.title || `Step ${idx + 1}`}</p>
                                         <div className="flex items-center gap-3 mt-0.5">
-                                            <p className="text-xs text-gray-500">{step.duration}</p>
+                                            {currentTemplate.type !== "story" && (
+                                                <p className="text-xs text-gray-500">{step.duration}</p>
+                                            )}
                                             {step.shotType && (
                                                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-500">
                                                     {step.shotType}
@@ -456,6 +458,7 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
                 onClose={handleCloseStepModal}
                 onAddStep={handleAddStep}
                 initialData={editingStepIndex !== null ? (currentTemplate.steps || [])[editingStepIndex] : null}
+                templateType={currentTemplate.type || ""}
             />
         </div>
     );
