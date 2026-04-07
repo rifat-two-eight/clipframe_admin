@@ -42,15 +42,15 @@ export default function TemplateDetails({ template, onBack }: TemplateDetailsPro
                             <img
                                 src={template.thumbnail}
                                 alt={template.title}
-                                className="aspect-[9/16] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                className="aspect-9/16 w-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                         ) : (
-                            <div className="flex aspect-[9/16] w-full flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">
+                            <div className="flex aspect-9/16 w-full flex-col items-center justify-center bg-linear-to-br from-gray-100 to-gray-200 text-gray-400">
                                 <PlayCircle className="h-16 w-16 opacity-20" />
                                 <p className="mt-4 font-medium opacity-50">No preview available</p>
                             </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
                         <div className="absolute bottom-8 left-8 right-8">
                             <span className="rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold text-white backdrop-blur-md">
                                 {template.category || "Uncategorized"}
@@ -144,9 +144,9 @@ export default function TemplateDetails({ template, onBack }: TemplateDetailsPro
 
                         <div className="space-y-4">
                             {(template.steps || []).map((step, idx) => (
-                                <div key={step._id || idx} className="group relative rounded-[2rem] bg-white p-6 shadow-sm border border-gray-50 hover:shadow-xl hover:shadow-pink-50 hover:border-pink-100 transition-all duration-500">
+                                <div key={step._id || idx} className="group relative rounded-4xl bg-white p-6 shadow-sm border border-gray-50 hover:shadow-xl hover:shadow-pink-50 hover:border-pink-100 transition-all duration-500">
                                     <div className="flex items-start gap-6">
-                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ff1f71] to-pink-400 text-xl font-black text-white shadow-lg shadow-pink-200">
+                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#ff1f71] to-pink-400 text-xl font-black text-white shadow-lg shadow-pink-200">
                                             {idx + 1}
                                         </div>
                                         <div className="flex-1 space-y-3">
@@ -174,7 +174,7 @@ export default function TemplateDetails({ template, onBack }: TemplateDetailsPro
 
                                         {/* Step Media Preview */}
                                         {(step.url || step.videoFile) && (
-                                            <div className="hidden sm:block w-32 aspect-[9/16] rounded-2xl bg-gray-100 overflow-hidden relative group-hover:shadow-lg transition-all duration-500">
+                                            <div className="hidden sm:block w-32 aspect-9/16 rounded-2xl bg-gray-100 overflow-hidden relative group-hover:shadow-lg transition-all duration-500">
                                                 {step.url ? (
                                                     <video src={step.url} className="h-full w-full object-cover" />
                                                 ) : step.videoFile ? (

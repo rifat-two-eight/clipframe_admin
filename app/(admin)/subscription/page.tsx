@@ -251,7 +251,7 @@ export default function SubscriptionPage() {
                             {/* Card */}
                             <div
                                 className={`relative flex-1 overflow-hidden rounded-3xl p-6 text-white shadow-lg ${sub.title?.toLowerCase().includes("starter") || sub.title?.toLowerCase().includes("pro")
-                                    ? "bg-gradient-to-r from-pink-500 to-blue-600"
+                                    ? "bg-linear-to-r from-pink-500 to-blue-600"
                                     : "bg-gray-600"
                                     }`}
                             >
@@ -337,7 +337,7 @@ export default function SubscriptionPage() {
             {/* Modal Overlay */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-3xl rounded-3xl bg-gradient-to-br from-[#ffeec2] to-[#d6c6ff] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                    <div className="w-full max-w-3xl rounded-3xl bg-linear-to-br from-[#ffeec2] to-[#d6c6ff] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
                         {/* Close Button */}
                         <button
                             onClick={handleCloseModal}

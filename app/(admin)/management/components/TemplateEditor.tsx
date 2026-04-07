@@ -1,13 +1,13 @@
 "use client";
 
-import { ChevronLeft, Eye, PlayCircle, Upload, ChevronDown, Plus, CheckCircle, Loader2, X } from "lucide-react";
+import { ChevronLeft, Eye, PlayCircle, Upload, ChevronDown, Plus, CheckCircle, Loader2, X, Edit2 } from "lucide-react";
 import { useRef, useState } from "react";
 import StepModal from "./StepModal";
 import api from "@/lib/axios";
 import { Template, Step } from "../types";
 
 // Constants
-const CATEGORIES = ["Lifestyle", "Restaurant", "Tutorial", "Product"];
+const CATEGORIES = ["Restaurant"];
 const TYPES = ["reel", "story", "post"];
 
 type TemplateEditorProps = {
@@ -23,6 +23,7 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
         steps: initialTemplate.steps || []
     });
     const [isStepModalOpen, setIsStepModalOpen] = useState(false);
+    const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [hashtagInput, setHashtagInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -31,11 +32,26 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
     const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
     const handleAddStep = (newStep: Step) => {
-        setCurrentTemplate(prev => ({
-            ...prev,
-            steps: [...(prev.steps || []), newStep]
-        }));
+        setCurrentTemplate(prev => {
+            const steps = [...(prev.steps || [])];
+            if (editingStepIndex !== null) {
+                steps[editingStepIndex] = newStep;
+            } else {
+                steps.push(newStep);
+            }
+            return { ...prev, steps };
+        });
+        handleCloseStepModal();
+    };
+
+    const handleEditStep = (index: number) => {
+        setEditingStepIndex(index);
+        setIsStepModalOpen(true);
+    };
+
+    const handleCloseStepModal = () => {
         setIsStepModalOpen(false);
+        setEditingStepIndex(null);
     };
 
     const handleRemoveStep = (indexToRemove: number) => {
@@ -205,7 +221,7 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
             {/* Error Banner */}
             {error && (
                 <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 flex items-center gap-2">
-                    <X className="h-4 w-4 flex-shrink-0" />
+                    <X className="h-4 w-4 shrink-0" />
                     {error}
                 </div>
             )}
@@ -355,7 +371,10 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
                     </div>
                     {(currentTemplate.steps && currentTemplate.steps.length > 0) && (
                         <button
-                            onClick={() => setIsStepModalOpen(true)}
+                            onClick={() => {
+                                setEditingStepIndex(null);
+                                setIsStepModalOpen(true);
+                            }}
                             className="flex items-center gap-2 rounded-xl bg-[#ff1f71] px-4 py-2 text-sm font-bold text-white hover:bg-pink-600"
                         >
                             <Plus className="h-4 w-4" />
@@ -371,7 +390,10 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
                         </div>
                         <p className="text-sm font-medium text-gray-500">No steps added yet</p>
                         <button
-                            onClick={() => setIsStepModalOpen(true)}
+                            onClick={() => {
+                                setEditingStepIndex(null);
+                                setIsStepModalOpen(true);
+                            }}
                             className="mt-4 rounded-xl bg-[#ff1f71] px-6 py-3 text-sm font-bold text-white hover:bg-pink-600"
                         >
                             Add First Step
@@ -407,12 +429,22 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
                                         </div>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => handleRemoveStep(idx)}
-                                    className="rounded-full p-1 text-gray-400 hover:text-red-500 hover:bg-red-50"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => handleEditStep(idx)}
+                                        className="rounded-full p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                                        title="Edit Step"
+                                    >
+                                        <Edit2 className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleRemoveStep(idx)}
+                                        className="rounded-full p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                        title="Remove Step"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -421,8 +453,9 @@ export default function TemplateEditor({ template: initialTemplate, onBack, onSa
 
             <StepModal
                 isOpen={isStepModalOpen}
-                onClose={() => setIsStepModalOpen(false)}
+                onClose={handleCloseStepModal}
                 onAddStep={handleAddStep}
+                initialData={editingStepIndex !== null ? (currentTemplate.steps || [])[editingStepIndex] : null}
             />
         </div>
     );

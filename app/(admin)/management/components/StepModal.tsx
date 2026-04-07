@@ -1,19 +1,41 @@
 "use client";
 
 import { X, Upload, Lightbulb, CheckCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Step } from "../types";
 
 type StepModalProps = {
     isOpen: boolean;
     onClose: () => void;
     onAddStep: (step: Step) => void;
+    initialData?: Step | null;
 };
 
-export default function StepModal({ isOpen, onClose, onAddStep }: StepModalProps) {
+export default function StepModal({ isOpen, onClose, onAddStep, initialData }: StepModalProps) {
     const [stepForm, setStepForm] = useState<Partial<Step>>({});
     const [clipFile, setClipFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            if (initialData) {
+                setStepForm({
+                    title: initialData.title,
+                    shotType: initialData.shotType,
+                    duration: initialData.duration,
+                    mediaType: initialData.mediaType,
+                    mainTip: initialData.mainTip,
+                    detailedTips: initialData.detailedTips,
+                    _id: initialData._id,
+                    url: initialData.url,
+                });
+                setClipFile(initialData.videoFile || null);
+            } else {
+                setStepForm({});
+                setClipFile(null);
+            }
+        }
+    }, [isOpen, initialData]);
 
     const handleAdd = () => {
         // Validate required fields
@@ -24,18 +46,16 @@ export default function StepModal({ isOpen, onClose, onAddStep }: StepModalProps
         }
 
         const newStep: Step = {
-            // _id is optional for new steps
-            title: stepForm.title,
-            shotType: stepForm.shotType,
-            duration: stepForm.duration,
-            mainTip: stepForm.mainTip,
-            detailedTips: stepForm.detailedTips || "",
+            ...stepForm,
+            title: stepForm.title!,
+            shotType: stepForm.shotType!,
+            duration: stepForm.duration!,
+            mainTip: stepForm.mainTip!,
             mediaType: (stepForm.mediaType as "video" | "image") || "video",
             videoFile: clipFile,
         };
         onAddStep(newStep);
-        setStepForm({});
-        setClipFile(null);
+        handleClose();
     };
 
     const handleClose = () => {
@@ -48,7 +68,7 @@ export default function StepModal({ isOpen, onClose, onAddStep }: StepModalProps
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="w-full max-w-2xl rounded-3xl bg-gradient-to-br from-[#ffeec2] to-[#d6c6ff] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div className="w-full max-w-2xl rounded-3xl bg-linear-to-br from-[#ffeec2] to-[#d6c6ff] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
                 <button
                     onClick={handleClose}
                     className="absolute right-6 top-6 rounded-full bg-blue-100 p-1 text-blue-500 hover:bg-blue-200"
@@ -56,7 +76,9 @@ export default function StepModal({ isOpen, onClose, onAddStep }: StepModalProps
                     <X className="h-6 w-6" />
                 </button>
 
-                <h2 className="text-2xl font-bold text-[#ff1f71]">Add new step</h2>
+                <h2 className="text-2xl font-bold text-[#ff1f71]">
+                    {initialData ? "Edit step" : "Add new step"}
+                </h2>
 
                 <div className="mt-6 space-y-6">
                     {/* Clip Video Upload */}
@@ -85,7 +107,9 @@ export default function StepModal({ isOpen, onClose, onAddStep }: StepModalProps
                             ) : (
                                 <>
                                     <Upload className="mb-2 h-8 w-8 text-gray-700" />
-                                    <p className="text-sm font-bold text-gray-700">Click to upload video / image</p>
+                                    <p className="text-sm font-bold text-gray-700">
+                                        {stepForm.url ? "Replace existing media" : "Click to upload video / image"}
+                                    </p>
                                     <p className="text-xs text-gray-500">MP4, MOV, AVI, JPG, PNG (Max 500MB)</p>
                                 </>
                             )}
@@ -177,7 +201,7 @@ export default function StepModal({ isOpen, onClose, onAddStep }: StepModalProps
                             onClick={handleAdd}
                             className="rounded-xl bg-[#ff1f71] px-6 py-3 text-sm font-bold text-white shadow-lg hover:bg-pink-600"
                         >
-                            Add Step
+                            {initialData ? "Update Step" : "Add Step"}
                         </button>
                     </div>
                 </div>

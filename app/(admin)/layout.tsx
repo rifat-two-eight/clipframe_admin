@@ -156,7 +156,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-gradient-to-br from-[#ffeec2] to-[#d6c6ff] pt-16 lg:pt-0">
+      <main className="flex-1 overflow-y-auto bg-linear-to-br from-[#ffeec2] to-[#d6c6ff] pt-16 lg:pt-0">
         <div className="w-full p-4 lg:p-12">
           {children}
         </div>
