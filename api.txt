@@ -1,0 +1,116 @@
+{
+    "statusCode": 200,
+    "success": true,
+    "message": "All subscriptions retrieved successfully",
+    "meta": {
+        "total": 1,
+        "limit": 10,
+        "page": 1,
+        "totalPage": 1
+    },
+    "data": [
+        {
+            "usage": {
+                "reelsUsed": 0,
+                "postsUsed": 0,
+                "storiesUsed": 0,
+                "businessesUsed": 0,
+                "carouselUsed": 0
+            },
+            "_id": "69e015d539a480ed838b453c",
+            "userId": {
+                "location": {
+                    "type": "Point",
+                    "coordinates": [
+                        0,
+                        0
+                    ]
+                },
+                "authentication": {
+                    "resetPassword": false,
+                    "requestCount": 0,
+                    "restrictionLeftAt": null,
+                    "wrongLoginAttempts": 0,
+                    "latestRequestAt": "2026-04-15T23:38:33.363Z"
+                },
+                "_id": "68b1fd9e3a485a0f4fc4b527",
+                "name": "Md Mohsoin Ali",
+                "email": "web.mohosin@gmail.com",
+                "status": "active",
+                "verified": true,
+                "password": "$2b$10$Fn7GMkF9jEwvjxDjj9Dv8u1AEUTYDq6IjE9bFV2.gEUv.5oTj574K",
+                "role": "admin",
+                "createdAt": "2025-08-29T19:21:02.213Z",
+                "updatedAt": "2026-04-15T23:36:24.739Z",
+                "__v": 0,
+                "subscribe": true,
+                "timezone": "Asia/Dhaka",
+                "phone": "0187262727",
+                "businessCategory": "FoodResturent",
+                "businessName": "TikToker",
+                "profile": "https://clipframe.s3.ap-southeast-1.amazonaws.com/image/1775591822271-image_picker_3315B96A-D967-49DE-B255-95A0E5697348-4091-000001AD41016EC9.jpg%22,
+                "description": "A modern restaurant app designed to enhance the dining experience by allowing users to explore menus, place orders, and manage reservations seamlessly. The app features an intuitive interface, real-time order tracking, and secure payment options, ensuring convenience for both customers and restaurant owners. It aims to simplify food ordering while delivering a smooth and engaging user experience.",
+                "id": "68b1fd9e3a485a0f4fc4b527"
+            },
+            "planId": {
+                "_id": "69e010b87a7763be4afdc72f",
+                "name": "Basic Plan",
+                "description": "Essential tools for trucking calculations and content management",
+                "price": 9.99,
+                "currency": "usd",
+                "interval": "month",
+                "intervalCount": 1,
+                "trialPeriodDays": 7,
+                "features": [
+                    "Cost per mile calculation",
+                    "Load profit calculator",
+                    "Rate planner"
+                ],
+                "reelsPerWeek": 5,
+                "postsPerWeek": 10,
+                "storiesPerWeek": 7,
+                "businessesManageable": 3,
+                "carouselPerWeek": 3,
+                "isActive": true,
+                "stripePriceId": "price_1TMbtmGdOsJASBMCiqWPMf54",
+                "stripeProductId": "prod_ULIUi7zVvhTlWE",
+                "priority": 0,
+                "tier": "free",
+                "lastWebhookEventId": null,
+                "createdAt": "2026-04-15T22:27:04.302Z",
+                "updatedAt": "2026-04-15T22:27:04.302Z",
+                "__v": 0
+            },
+            "price": 9.99,
+            "stripeCustomerId": "cus_ULIqoZhvLJj2eP",
+            "stripeSubscriptionId": "sub_1TMcEsGdOsJASBMCGyeOVkge",
+            "stripePriceId": "price_1TMbtmGdOsJASBMCiqWPMf54",
+            "status": "trialing",
+            "currentPeriodStart": "2026-04-15T22:48:54.000Z",
+            "currentPeriodEnd": "2026-04-22T22:48:54.000Z",
+            "trialStart": "2026-04-15T22:48:54.000Z",
+            "trialEnd": "2026-04-22T22:48:54.000Z",
+            "canceledAt": null,
+            "cancelAtPeriodEnd": false,
+            "endedAt": null,
+            "hasUsedTrial": true,
+            "metadata": {
+                "planId": "69e010b87a7763be4afdc72f",
+                "userId": "68b1fd9e3a485a0f4fc4b527"
+            },
+            "lastPaymentDate": null,
+            "nextPaymentDate": null,
+            "paymentFailureCount": 0,
+            "lastWebhookEventId": null,
+            "pausedAt": null,
+            "resumedAt": null,
+            "riskScore": 0,
+            "fraudFlags": [],
+            "lastReset": "2026-04-15T22:48:53.707Z",
+            "lastSyncedAt": "2026-04-15T22:48:53.707Z",
+            "createdAt": "2026-04-15T22:48:53.708Z",
+            "updatedAt": "2026-04-15T22:48:53.708Z"
+        }
+    ]
+}
+ 

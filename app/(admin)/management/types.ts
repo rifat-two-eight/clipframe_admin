@@ -36,19 +36,22 @@ export interface Template {
 }
 export interface SubscriptionPlan {
     _id?: string;
-    title: string;
+    name: string;
     description: string;
     price: number;
-    duration: string;
-    paymentType: string;
-    limits: {
-        reelsPerWeek: number;
-        postsPerWeek: number;
-        storiesPerWeek: number;
-        carouselPerWeek: number;
-        businessesManageable: number;
-    };
-    features?: string[];
+    currency: string;
+    interval: "month" | "year";
+    intervalCount: number;
+    trialPeriodDays: number;
+    features: string[];
+    tier: "free" | "basic" | "premium";
+    priority: number;
+    reelsPerWeek: number;
+    postsPerWeek: number;
+    storiesPerWeek: number;
+    carouselPerWeek: number;
+    businessesManageable: number;
+    isActive: boolean;
     createdAt?: string;
     updatedAt?: string;
 }

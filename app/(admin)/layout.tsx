@@ -96,7 +96,7 @@ export default function AdminLayout({
           <div className="relative h-10 w-10 overflow-hidden rounded-full bg-gray-200">
             {/* Placeholder for user avatar */}
             <div className="absolute inset-0 flex items-center justify-center bg-gray-300 text-xs font-bold text-gray-600">
-              {adminName.charAt(0).toUpperCase()}
+              {adminName.toUpperCase()}
             </div>
           </div>
           <div>
